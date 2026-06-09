@@ -28,6 +28,7 @@ struct ContentView: View {
         return Calendar.current.date(from: components) ?? .now
     }
     
+    /// A computed property that uses CoreML to predict the ideal time to go to bed based on when the user wants to wake up, how much sleep they want, and how much coffee they drink.
     var sleepResults: String {
         do {
             // Sets up the ML environment and creates an instance of the CoreML model (SleepCalculator).

@@ -7,7 +7,7 @@ First, I gave it some raw data which it used as training data, the results are t
 
 This app takes in some data (wake up time, how many hours sleep and cups of coffee drunk), with this information it returns a estimated bed time.
 
-## What I Learn't
+## What I Learned
 1. CoreML
 2. Create ML
 3. Dates

@@ -18,4 +18,4 @@ This app takes in some data (wake up time, how many hours sleep and cups of coff
 <img width="330" height="717" alt="Simulator Screenshot - iPhone 17 Pro Max - 2026-06-09 at 21 32 55" src="https://github.com/user-attachments/assets/c4ebf7f2-0e09-49a5-9f31-d556974dacaa" />
 
 ## Other Challenges
-TBC
+~- Refactor the projects so that it conforms to the MVVM model.~

@@ -5,6 +5,13 @@
 //  Created by Michael Jones on 04/06/2026.
 //
 
+/*
+ Hacking With SwiftUI - Better Rest : Challenges
+ 1. Replace each VStack in our form with a Section, where the text view is the title of the section. Do you prefer this layout or the VStack layout? It’s your app – you choose! - DONE!
+ 2. Replace the “Number of cups” stepper with a Picker showing the same range of values. - DONE!
+ 3. Change the user interface so that it always shows their recommended bedtime using a nice and large font. You should be able to remove the “Calculate” button entirely. - DONE!
+*/
+
 import CoreML
 import SwiftUI
 
@@ -12,10 +19,6 @@ struct ContentView: View {
     @State private var wakeUp = defaultWakeTime
     @State private var sleepAmount = 8.0
     @State private var coffeeAmount = 1
-    
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
-    @State private var showingAlert = false
     
     //Static Variable. This means it belongs to the 'ContentView' Struct itself, rather than an instance of 'ContentView'.
     static var defaultWakeTime: Date {
@@ -25,46 +28,8 @@ struct ContentView: View {
         return Calendar.current.date(from: components) ?? .now
     }
     
-    var body: some View {
-        NavigationStack {
-            Form {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("When do you want to wake up?")
-                        .font(.headline)
-                    
-                    DatePicker("Please enter time", selection: $wakeUp, displayedComponents: .hourAndMinute)
-                        .labelsHidden()
-                }
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Desired amount of sleep:")
-                        .font(.headline)
-                    
-                    Stepper("\(sleepAmount.formatted()) hours", value: $sleepAmount, in: 4...12, step: 0.25)
-                }
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Daily Coffee Consumption")
-                        .font(.headline)
-                    
-                    //Specialised form of the markdown, which is common in free-text.
-                    Stepper("^[\(coffeeAmount) cup](inflect: true)", value: $coffeeAmount, in: 1...20, step: 1)
-                }
-            }
-            .navigationTitle(Text("Better Rest"))
-            .toolbar {
-                Button("Calculate", action: calculateBedtime)
-            }
-            .alert(alertTitle, isPresented: $showingAlert) {
-                Button("OK", action: {})
-            } message: {
-                Text(alertMessage)
-            }
-        }
-    }
-    
-    /// Uses CoreML model to predict the ideal time to go to bed based on when the user wants to wake up, how much sleep they want and how often they drink coffee.
-    private func calculateBedtime() {
+    /// A computed property that uses CoreML to predict the ideal time to go to bed based on when the user wants to wake up, how much sleep they want, and how much coffee they drink.
+    var sleepResults: String {
         do {
             // Sets up the ML environment and creates an instance of the CoreML model (SleepCalculator).
             let config = MLModelConfiguration() // The configuration settings for create or updating a CoreML model.
@@ -82,17 +47,39 @@ struct ContentView: View {
             // Calculates what time the user should go to bed.
             let sleepTime = wakeUp - prediction.actualSleep
             
-            alertTitle = "Your ideal bedtime is..."
-            alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
+            return "Your ideal bedtime is..." + sleepTime.formatted(date: .omitted, time: .shortened)
             
         } catch {
-            // If anything goes wrong (e.g., model failing to load, an error message will appear instead.
-            alertTitle = "Error"
-            alertMessage = "Something went wrong. Please try again."
+            return "Error: Unable to calculate sleep time. Please try again."
         }
-        
-        // Triggers the Alert view to show one of the results (Prediction or Error message).
-        showingAlert = true
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("When do you want to wake up?"){
+                    DatePicker("Please enter time", selection: $wakeUp, displayedComponents: .hourAndMinute)
+                        .labelsHidden()
+                }
+                
+                Section("Desired amount of sleep:") {
+                    Stepper("\(sleepAmount.formatted()) hours", value: $sleepAmount, in: 4...12, step: 0.25)
+                }
+                
+                Section("Daily Coffee Consumption"){
+                    Picker("Coffee Consumption", selection: $coffeeAmount) {
+                        ForEach(1...20, id: \.self) {
+                            Text("^[\($0) cup](inflect: true)") //Specialised form of the markdown, which is common in free-text.
+                                .tag($0)
+                        }
+                    }
+                }
+                
+                Text(sleepResults)
+                    .font(.title3)
+            }
+            .navigationTitle(Text("Better Rest"))
+        }
     }
 }
 
